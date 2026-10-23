@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathMobile - E-Learning Matematika Kelas XII</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- MathJax for rendering Mathematical Formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Mobile Device Styling & Scrollbars */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .phone-frame {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(14, 165, 233, 0.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 dark:text-slate-100 flex items-center justify-center p-0 sm:p-4 md:p-6 select-none overflow-x-hidden">
+
+    <!-- MAIN SMARTPHONE CONTAINER -->
+    <div class="phone-frame relative w-full sm:max-w-[410px] h-[100vh] sm:h-[840px] bg-slate-900 rounded-0 sm:rounded-[48px] p-0 sm:p-3 border-0 sm:border-[10px] border-slate-800 dark:border-slate-700 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-2xl">
+        
+        <!-- TOP HARDWARE NOTCH / ISLAND & CAMERA (Visible on Desktop Frame) -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-36 h-6 bg-slate-900 rounded-b-2xl z-50 hidden sm:flex items-center justify-center gap-2">
+            <div class="w-3 h-3 bg-slate-800 rounded-full border border-slate-700"></div>
+            <div class="w-12 h-1.5 bg-slate-800 rounded-full"></div>
+        </div>
+
+        <!-- SCREEN CANVAS (Inside Phone Display) -->
+        <div id="screen" class="relative w-full h-full bg-slate-50 dark:bg-slate-900 rounded-0 sm:rounded-[36px] flex flex-col overflow-hidden transition-colors duration-300">
+            
+            <!-- STATUS BAR -->
+            <div class="w-full pt-2 px-6 pb-1 flex justify-between items-center text-xs font-semibold text-slate-700 dark:text-slate-300 z-40 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md">
+                <span id="digital-clock">08:00</span>
+                <div class="flex items-center gap-1.5 text-[11px]">
+                    <i class="fa-solid fa-signal"></i>
+                    <i class="fa-solid fa-wifi"></i>
+                    <i class="fa-solid fa-battery-full text-emerald-500"></i>
+                </div>
+            </div>
+
+            <!-- APP HEADER -->
+            <div class="px-4 py-2.5 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 flex items-center justify-between z-30 sticky top-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+                        <i class="fa-solid fa-calculator text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm tracking-tight text-slate-900 dark:text-white leading-tight">MathMobile</h1>
+                        <p class="text-[10px] text-sky-600 dark:text-sky-400 font-medium">SMA Kelas XII • Kurikulum Merdeka</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1">
+                    <!-- Dark/Light Theme Toggle -->
+                    <button id="theme-toggle" onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-amber-400 flex items-center justify-center hover:scale-105 active:scale-95 transition">
+                        <i id="theme-icon" class="fa-solid fa-moon text-xs"></i>
+                    </button>
+                    <!-- Quick Calc Modal Trigger -->
+                    <button onclick="openCalcModal()" class="w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-300 flex items-center justify-center hover:scale-105 active:scale-95 transition">
+                        <i class="fa-solid fa-square-root-variable text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SEARCH BAR (Sticky Sub-header) -->
+            <div class="px-4 py-2 bg-slate-100/80 dark:bg-slate-800/50 backdrop-blur-sm border-b border-slate-200/50 dark:border-slate-700/50">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="searchInput" onkeyup="searchContent()" placeholder="Cari materi, rumus, modul..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-700 dark:text-slate-200 transition">
+                </div>
+            </div>
+
+            <!-- MAIN SCROLLABLE CONTENT VIEWPORT -->
+            <div id="content-container" class="flex-1 overflow-y-auto hide-scrollbar p-4 space-y-4">
+
+                <!-- VIEW 1: HOME DASHBOARD -->
+                <div id="view-home" class="tab-view space-y-4">
+                    <!-- Banner Info -->
+                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-700 p-4 text-white shadow-lg">
+                        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+                        <span class="inline-block px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-semibold tracking-wide uppercase mb-1">E-Learning Matematika</span>
+                        <h2 class="text-base font-bold leading-tight">Peluang Kejadian Majemuk</h2>
+                        <p class="text-xs text-sky-100 mt-1 opacity-90">Saling Lepas, Saling Bebas, & Peluang Bersyarat</p>
+                        
+                        <div class="mt-3 pt-3 border-t border-white/20 flex items-center justify-between text-[11px]">
+                            <span class="flex items-center gap-1.5 font-medium"><i class="fa-solid fa-user-tie"></i> Ulfatul Hasanah, S.Pd.</span>
+                            <span class="bg-white/20 px-2 py-0.5 rounded text-[10px]">Kelas XII / F</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Navigation Grid -->
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <button onclick="switchTab('materi')" class="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition text-left group">
+                            <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-book-open text-sm"></i>
+                            </div>
+                            <h3 class="text-xs font-bold text-slate-800 dark:text-slate-100">Rangkuman Materi</h3>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400">Rumus, Konsep, & Contoh</p>
+                        </button>
+
+                        <button onclick="switchTab('modul')" class="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition text-left group">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                                <i class="fa-solid fa-layer-group text-sm"></i>
+                            </div>
+                            <h3 class="text-xs font-bold text-slate-800 dark:text-slate-100">Modul Ajar</h3>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400">Pertemuan 1, 2, & 3 (PBL)</p>
+                        </button>
+                    </div>
+
+                    <!-- Interactive Learning Portal Cards -->
+                    <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1">Aktivitas & Evaluasi Digital</h3>
+                    
+                    <div class="space-y-2.5">
+                        <!-- Presensi Card -->
+                        <div class="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-clipboard-user"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800 dark:text-slate-100">Presensi Kehadiran</h4>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Isi daftar hadir kelas digital</p>
+                                </div>
+                            </div>
+                            <button onclick="openExternalLink('https://form.jotform.com/262925125082051', 'Presensi Kehadiran')" class="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold shadow-md shadow-rose-500/20 active:scale-95 transition">
+                                Isi Presensi
+                            </button>
+                        </div>
+
+                        <!-- Tugas Card -->
+                        <div class="p-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800 dark:text-slate-100">Tugas Mandiri</h4>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Latihan & Pengumpulan Google Form</p>
+                                </div>
+                            </div>
+                            <button onclick="openExternalLink('https://docs.google.com/forms/d/e/1FAIpQLSfl1lEj4yzhArfqjr6m-aBe16i6N2RY27itcSC38niASa8u5A/viewform?usp=publish-editor', 'Tugas Mandiri')" class="px-3 py-1.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold shadow-md shadow-blue-500/20 active:scale-95 transition">
+                                Buka Tugas
+                            </button>
+                        </div>
+
+                        <!-- Kuis Wordwall Card -->
+                        <div class="p-3 bg-gradient-to-r from-purple-900/10 to-indigo-900/10 bg-white dark:bg-slate-800 rounded-2xl border border-purple-200 dark:border-purple-900/50 shadow-sm flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center text-lg">
+                                    <i class="fa-solid fa-gamepad"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800 dark:text-slate-100">Kuis Interaktif</h4>
+                                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Game Matematika Wordwall</p>
+                                </div>
+                            </div>
+                            <button onclick="openExternalLink('https://wordwall.net/resource/121996333?wwmethod=link', 'Kuis Wordwall')" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold shadow-md shadow-purple-500/20 active:scale-95 transition">
+                                Mainkan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Calculator Widget Banner -->
+                    <div class="p-3.5 bg-sky-50 dark:bg-slate-800/80 rounded-2xl border border-sky-200 dark:border-sky-900/50 flex items-center justify-between">
+                        <div class="space-y-0.5">
+                            <h4 class="text-xs font-bold text-sky-900 dark:text-sky-300">Kalkulator Peluang</h4>
+                            <p class="text-[10px] text-sky-700 dark:text-sky-400">Hitung nilai peluang real-time instan</p>
+                        </div>
+                        <button onclick="openCalcModal()" class="px-3 py-1.5 bg-sky-600 text-white text-xs font-semibold rounded-xl shadow hover:bg-sky-700 transition">
+                            Coba Sekarang
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: MATERI LENGKAP -->
+                <div id="view-materi" class="tab-view hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-book-bookmark text-sky-500"></i> Materi Pembelajaran
+                        </h2>
+                        <span class="text-[10px] bg-sky-100 dark:bg-sky-900/50 text-sky-600 dark:text-sky-300 font-semibold px-2 py-0.5 rounded-full">Lengkap</span>
+                    </div>
+
+                    <!-- Section A: Konsep Dasar Peluang -->
+                    <div class="searchable-card bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                        <div class="flex items-center gap-2 text-sky-600 dark:text-sky-400">
+                            <i class="fa-solid fa-circle-dot text-xs"></i>
+                            <h3 class="text-xs font-bold">1. Konsep & Rumus Dasar Peluang</h3>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Peluang menyatakan ukuran kemungkinan terjadinya suatu peristiwa.
+                        </p>
+                        <div class="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl text-center border border-slate-200 dark:border-slate-700">
+                            <div class="text-sm font-bold text-sky-600 dark:text-sky-400">\( P(A) = \frac{n(A)}{n(S)} \)</div>
+                            <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                                \(n(A)\) = Banyak hasil mendukung A<br>
+                                \(n(S)\) = Banyak seluruh hasil sampel
+                            </div>
+                        </div>
+                        <div class="p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-[11px] text-amber-800 dark:text-amber-300">
+                            <strong>Rentang Nilai Peluang:</strong> \( 0 \le P(A) \le 1 \)<br>
+                            • \(P(A) = 0\) : Kejadian Mustahil<br>
+                            • \(P(A) = 1\) : Kejadian Pasti
+                        </div>
+                    </div>
+
+                    <!-- Section B: Kejadian Majemuk & Saling Lepas -->
+                    <div class="searchable-card bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                            <i class="fa-solid fa-diagram-project text-xs"></i>
+                            <h3 class="text-xs font-bold">2. Kejadian Saling Lepas</h3>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Dua kejadian tidak dapat terjadi secara bersamaan dalam satu percobaan (\(P(A \cap B) = 0\)).
+                        </p>
+                        <div class="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800/50 text-center">
+                            <div class="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                                \( P(A \cup B) = P(A) + P(B) \)
+                            </div>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Contoh Soal (Pulpen):</span>
+                            <p class="text-xs text-slate-700 dark:text-slate-300">
+                                Kotak berisi 4 pulpen merah, 3 biru, 3 hitam (Total = 10). Diambil 1 pulpen. Berapa peluang dapat merah atau biru?
+                            </p>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800">
+                                \(P(\text{Merah}) = 4/10\), \(P(\text{Biru}) = 3/10\)<br>
+                                \(P(\text{Merah atau Biru}) = \frac{4}{10} + \frac{3}{10} = \frac{7}{10} = 70\%\)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section C: Kejadian Saling Bebas -->
+                    <div class="searchable-card bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                        <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                            <i class="fa-solid fa-dice text-xs"></i>
+                            <h3 class="text-xs font-bold">3. Kejadian Saling Bebas</h3>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Terjadinya satu kejadian tidak memengaruhi peluang kejadian lainnya.
+                        </p>
+                        <div class="p-2.5 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl border border-indigo-200 dark:border-indigo-800/50 text-center">
+                            <div class="text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                                \( P(A \cap B) = P(A) \times P(B) \)
+                            </div>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Contoh Soal (Koin & Dadu):</span>
+                            <p class="text-xs text-slate-700 dark:text-slate-300">
+                                Koin dan dadu dilempar bersamaan. Peluang muncul sisi Gambar dan dadu angka 6?
+                            </p>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800">
+                                \(P(\text{Gambar}) = 1/2\), \(P(\text{Angka 6}) = 1/6\)<br>
+                                \(P(\text{Gambar dan 6}) = \frac{1}{2} \times \frac{1}{6} = \frac{1}{12}\)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section D: Peluang Bersyarat -->
+                    <div class="searchable-card bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                        <div class="flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                            <i class="fa-solid fa-code-fork text-xs"></i>
+                            <h3 class="text-xs font-bold">4. Peluang Bersyarat</h3>
+                        </div>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Peluang kejadian A dengan syarat kejadian B telah terjadi terlebih dahulu. Umum terjadi pada pengambilan tanpa pengembalian.
+                        </p>
+                        <div class="p-2.5 bg-purple-50 dark:bg-purple-950/30 rounded-xl border border-purple-200 dark:border-purple-800/50 text-center">
+                            <div class="text-xs font-bold text-purple-700 dark:text-purple-300">
+                                \( P(A|B) = \frac{P(A \cap B)}{P(B)} \quad (P(B) > 0) \)
+                            </div>
+                        </div>
+                        <div class="p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">Contoh Soal (Tanpa Pengembalian):</span>
+                            <p class="text-xs text-slate-700 dark:text-slate-300">
+                                Kotak berisi 5 bola merah, 3 bola biru (Total 8). 2 bola diambil berurutan tanpa pengembalian. Jika bola ke-1 merah, peluang bola ke-2 juga merah?
+                            </p>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-400 pt-1 border-t border-slate-200 dark:border-slate-800">
+                                Setelah 1 merah diambil, sisa bola merah = 4, total sisa bola = 7.<br>
+                                \(P(\text{Merah ke-2} | \text{Merah ke-1}) = \frac{4}{7}\)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section E: Penerapan Kontekstual -->
+                    <div class="searchable-card bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                        <h3 class="text-xs font-bold text-slate-800 dark:text-slate-200">Penerapan Sehari-hari</h3>
+                        <ul class="text-xs text-slate-600 dark:text-slate-300 space-y-1.5 list-disc pl-4">
+                            <li><strong>Menu Kantin (Saling Lepas):</strong> Memilih 1 lauk dari 2 ayam, 3 telur, 5 tempe. \(P(\text{Ayam/Telur}) = 2/10 + 3/10 = 1/2\).</li>
+                            <li><strong>Lembar Soal (Bersyarat):</strong> 4 Soal Aljabar, 6 Peluang. Diambil 1 Aljabar tanpa pengembalian. Peluang berikutnya Aljabar = \(3/9 = 1/3\).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- VIEW 3: MODUL AJAR PERTEMUAN 1, 2, 3 -->
+                <div id="view-modul" class="tab-view hidden space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-cubes text-emerald-500"></i> Modul Ajar (PBL)
+                        </h2>
+                        <span class="text-[10px] bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-300 font-semibold px-2 py-0.5 rounded-full">3 Pertemuan</span>
+                    </div>
+
+                    <!-- Navigation Tabs for Meetings -->
+                    <div class="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
+                        <button onclick="switchModul(1)" id="modul-btn-1" class="flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow transition">P1</button>
+                        <button onclick="switchModul(2)" id="modul-btn-2" class="flex-1 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 transition">P2</button>
+                        <button onclick="switchModul(3)" id="modul-btn-3" class="flex-1 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 transition">P3</button>
+                    </div>
+
+                    <!-- MODUL PERTEMUAN 1 -->
+                    <div id="modul-content-1" class="modul-tab space-y-3">
+                        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[10px] font-bold text-sky-500 uppercase">Pertemuan 1 (2 JP x 45 Menit)</span>
+                                    <h3 class="text-xs font-bold text-slate-800 dark:text-slate-100">Kejadian Saling Lepas & Saling Bebas</h3>
+                                </div>
+                                <span class="px-2 py-0.5 bg-sky-100 dark:bg-sky-900/50 text-sky-600 text-[10px] rounded-full font-bold">PBL</span>
+                            </div>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-300 space-y-1 pt-1 border-t border-slate-100 dark:border-slate-700">
+                                <p><strong>Model:</strong> Problem Based Learning (PBL)</p>
+                                <p><strong>Tujuan:</strong> Peserta didik mampu menjelaskan pengertian kejadian majemuk, membedakan saling lepas & saling bebas, serta menyelesaikan masalahnya.</p>
+                            </div>
+                        </div>
+
+                        <!-- Pertanyaan Pemantik -->
+                        <div class="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-2xl border border-amber-200 dark:border-amber-800/50">
+                            <h4 class="text-xs font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-lightbulb"></i> Pertanyaan Pemantik
+                            </h4>
+                            <ul class="text-[11px] text-amber-800 dark:text-amber-200 mt-1 space-y-1 list-disc pl-4">
+                                <li>Jika dadu dilempar 1x, apakah angka 2 dan 5 dapat muncul bersamaan?</li>
+                                <li>Apakah hasil pelemparan koin mempengaruhi hasil lemparan dadu?</li>
+                            </ul>
+                        </div>
+
+                        <!-- Langkah Pembelajaran PBL -->
+                        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-slate-100">Langkah Pembelajaran (90 Menit)</h4>
+                            <div class="space-y-2 text-[11px]">
+                                <div class="p-2 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                                    <span class="font-bold text-sky-600">1. Pendahuluan (10 Menit):</span>
+                                    <p class="text-slate-600 dark:text-slate-400">Salam, doa, presensi, apersepsi materi peluang, dan penyampaian tujuan pembelajaran.</p>
+                                </div>
+                                <div class="p-2 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                                    <span class="font-bold text-emerald-600">2. Kegiatan Inti PBL (70 Menit):</span>
+                                    <p class="text-slate-600 dark:text-slate-400">Orientasi masalah dadu (Saling Lepas) & koin-dadu (Saling Bebas). Diskusi kelompok LKPD, presentasi, dan konfirmasi jawaban.</p>
+                                </div>
+                                <div class="p-2 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                                    <span class="font-bold text-indigo-600">3. Penutup (10 Menit):</span>
+                                    <p class="text-slate-600 dark:text-slate-400">Kesimpulan materi, refleksi mandiri, informasi pertemuan berikutnya tentang Peluang Bersyarat.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODUL PERTEMUAN 2 -->
+                    <div id="modul-content-2" class="modul-tab hidden space-y-3">
+                        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[10px] font-bold text-purple-500 uppercase">Pertemuan 2 (2 JP x 45 Menit)</span>
+                                    <h3 class="text-xs font-bold text-slate-800 dark:text-slate-100">Peluang Bersyarat</h3>
+                                </div>
+                                <span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-600 text-[10px] rounded-full font-bold">PBL</span>
+                            </div>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-300 space-y-1 pt-1 border-t border-slate-100 dark:border-slate-700">
+                                <p><strong>Submateri:</strong> Peluang Bersyarat & Pengambilan Tanpa Pengembalian</p>
+                                <p><strong>Tujuan:</strong> Memahami notasi \(P(A|B)\), menganalisis perubahan jumlah objek sampel, dan menghitung peluang bersyarat.</p>
+                            </div>
+                        </div>
+
+                        <!-- Pertanyaan Pemantik P2 -->
+                        <div class="bg-amber-50 dark:bg-amber-950/30 p-3 rounded-2xl border border-amber-200 dark:border-amber-800/50">
+                            <h4 class="text-xs font-bold text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-lightbulb"></i> Pertanyaan Pemantik
+                            </h4>
+                            <ul class="text-[11px] text-amber-800 dark:text-amber-200 mt-1 space-y-1 list-disc pl-4">
+                                <li>Jika bola diambil tanpa pengembalian, apakah total bola pengambilan ke-2 tetap sama?</li>
+                                <li>Bagaimana menghitung peluang jika suatu kejadian telah terjadi sebelumnya?</li>
+                            </ul>
+                        </div>
+
+                        <!-- Langkah Pembelajaran P2 -->
+                        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-slate-100">Langkah Pembelajaran (90 Menit)</h4>
+                            <div class="space-y-2 text-[11px]">
+                                <div class="p-2 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                                    <span class="font-bold text-sky-600">1. Pendahuluan (10 Menit):</span>
+                                    <p class="text-slate-600 dark:text-slate-400">Review materi P1 (Saling lepas vs Bebas), apersepsi kasus mengambil bola di dalam kotak.</p>
+                                </div>
+                                <div class="p-2 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                                    <span class="font-bold text-purple-600">2. Kegiatan Inti PBL (70 Menit):</span>
+                                    <p class="text-slate-600 dark:text-slate-400">Penyajian masalah bola tanpa pengembalian. Penjelasan rumus \(P(A|B) = \frac{P(A \cap B)}{P(B)}\). Diskusi kelompok LKPD dan presentasi.</p>
+                                </div>
+                                <div class="p-2 bg-slate-50 dark:bg-slate-900 rounded-xl">
+                                    <span class="font-bold text-indigo-600">3. Penutup (10 Menit):</span>
+                                    <p class="text-slate-600 dark:text-slate-400">Rangkuman peluang bersyarat, latihan singkat penguatan, dan refleksi.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODUL PERTEMUAN 3 -->
+                    <div id="modul-content-3" class="modul-tab hidden space-y-3">
+                        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[10px] font-bold text-emerald-500 uppercase">Pertemuan 3 (2 JP x 45 Menit)</span>
+                                    <h3 class="text-xs font-bold text-slate-800 dark:text-slate-100">Penerapan & Evaluasi Lengkap</h3>
+                                </div>
+                                <span class="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 text-[10px] rounded-full font-bold">PBL</span>
+                            </div>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-300 space-y-1 pt-1 border-t border-slate-100 dark:border-slate-700">
+                                <p><strong>Materi Integrasi:</strong> Saling Lepas, Saling Bebas, & Bersyarat</p>
+                                <p><strong>Tujuan:</strong> Peserta didik mampu mengidentifikasi jenis kejadian dari soal cerita konteks kompleks dan memilih rumus secara tepat.</p>
+                            </div>
+                        </div>
+
+                        <!-- Analisis Soal Campuran -->
+                        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-slate-100">Metode Analisis Masalah</h4>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-300 space-y-1.5">
+                                <div class="p-2 border-l-2 border-sky-500 bg-sky-50 dark:bg-sky-900/20">
+                                    <strong>Ciri Saling Lepas:</strong> Ada kata kunci "ATAU", tidak bisa terjadi bersamaan.
+                                </div>
+                                <div class="p-2 border-l-2 border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20">
+                                    <strong>Ciri Saling Bebas:</strong> Ada kata kunci "DAN", dua kejadian terpisah independen.
+                                </div>
+                                <div class="p-2 border-l-2 border-purple-500 bg-purple-50 dark:bg-purple-900/20">
+                                    <strong>Ciri Bersyarat:</strong> Terjadi berurutan "TANPA PENGEMBALIAN" atau "DENGAN SYARAT".
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl border border-emerald-200 dark:border-emerald-800/50 text-center">
+                            <p class="text-xs font-bold text-emerald-800 dark:text-emerald-300 mb-2">Evaluasi Akhir Tersedia di Menu Tugas & Kuis</p>
+                            <button onclick="switchTab('home')" class="px-3 py-1.5 bg-emerald-600 text-white rounded-xl text-xs font-semibold shadow hover:bg-emerald-700 transition">
+                                Buka Tugas / Kuis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 4: EVALUASI & AKSI -->
+                <div id="view-evaluasi" class="tab-view hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-square-check text-rose-500"></i> Portal Evaluasi & Presensi
+                        </h2>
+                    </div>
+
+                    <p class="text-xs text-slate-600 dark:text-slate-400">
+                        Silakan akses tautan pembelajaran resmi di bawah ini:
+                    </p>
+
+                    <div class="space-y-3">
+                        <!-- Presensi Link Card -->
+                        <div class="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                    <i class="fa-solid fa-user-check text-rose-500"></i> Presensi Kehadiran
+                                </span>
+                                <span class="text-[10px] bg-rose-100 dark:bg-rose-900/50 text-rose-600 px-2 py-0.5 rounded-full font-semibold">JotForm</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Pengisian kehadiran sebelum kelas dimulai.</p>
+                            <button onclick="openExternalLink('https://form.jotform.com/262925125082051', 'Presensi Kehadiran')" class="w-full py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Form Presensi
+                            </button>
+                        </div>
+
+                        <!-- Tugas Form Card -->
+                        <div class="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                    <i class="fa-solid fa-file-pen text-blue-500"></i> Tugas Mandiri
+                                </span>
+                                <span class="text-[10px] bg-blue-100 dark:bg-blue-900/50 text-blue-600 px-2 py-0.5 rounded-full font-semibold">Google Form</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Lembar kerja & tugas penyelesaian soal cerita.</p>
+                            <button onclick="openExternalLink('https://docs.google.com/forms/d/e/1FAIpQLSfl1lEj4yzhArfqjr6m-aBe16i6N2RY27itcSC38niASa8u5A/viewform?usp=publish-editor', 'Tugas Mandiri')" class="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Tugas Google Form
+                            </button>
+                        </div>
+
+                        <!-- Wordwall Card -->
+                        <div class="p-3.5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                    <i class="fa-solid fa-gamepad text-purple-500"></i> Kuis Interaktif
+                                </span>
+                                <span class="text-[10px] bg-purple-100 dark:bg-purple-900/50 text-purple-600 px-2 py-0.5 rounded-full font-semibold">Wordwall</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">Game interaktif uji pemahaman peluang.</p>
+                            <button onclick="openExternalLink('https://wordwall.net/resource/121996333?wwmethod=link', 'Kuis Wordwall')" class="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-play"></i> Mainkan Kuis Wordwall
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 5: PROFILE PROFIL -->
+                <div id="view-profile" class="tab-view hidden space-y-4">
+                    <div class="text-center py-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2">
+                        <div class="w-16 h-16 bg-gradient-to-tr from-sky-500 to-indigo-600 rounded-full mx-auto flex items-center justify-center text-white text-2xl shadow-lg shadow-sky-500/30">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100">Ulfatul Hasanah, S.Pd.</h3>
+                        <p class="text-xs text-sky-600 dark:text-sky-400 font-medium">Pengembang & Guru Matematika</p>
+                        <span class="inline-block px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] rounded-full font-semibold">
+                            SMA Kelas XII • Kurikulum Merdeka
+                        </span>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-2 text-xs">
+                        <h4 class="font-bold text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-700 pb-1.5">Informasi Aplikasi</h4>
+                        <div class="flex justify-between text-slate-600 dark:text-slate-400">
+                            <span>Versi App</span>
+                            <span class="font-semibold text-slate-800 dark:text-slate-200">v2.4 Smart-Mobile</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600 dark:text-slate-400">
+                            <span>Mata Pelajaran</span>
+                            <span class="font-semibold text-slate-800 dark:text-slate-200">Matematika Tingkat Lanjut</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600 dark:text-slate-400">
+                            <span>Fase/Kelas</span>
+                            <span class="font-semibold text-slate-800 dark:text-slate-200">Fase F / XII</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BOTTOM NAVIGATION BAR (iOS / Android Style) -->
+            <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 px-3 py-2 flex justify-around items-center z-40">
+                <button onclick="switchTab('home')" id="nav-home" class="nav-btn flex flex-col items-center gap-0.5 text-sky-600 dark:text-sky-400">
+                    <i class="fa-solid fa-house text-base"></i>
+                    <span class="text-[9px] font-semibold">Beranda</span>
+                </button>
+                <button onclick="switchTab('materi')" id="nav-materi" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-book text-base"></i>
+                    <span class="text-[9px] font-semibold">Materi</span>
+                </button>
+                <button onclick="switchTab('modul')" id="nav-modul" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-layer-group text-base"></i>
+                    <span class="text-[9px] font-semibold">Modul</span>
+                </button>
+                <button onclick="switchTab('evaluasi')" id="nav-evaluasi" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-square-check text-base"></i>
+                    <span class="text-[9px] font-semibold">Tugas/Kuis</span>
+                </button>
+                <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-user text-base"></i>
+                    <span class="text-[9px] font-semibold">Profil</span>
+                </button>
+            </div>
+
+            <!-- BOTTOM HOME INDICATOR BAR -->
+            <div class="w-full py-1 bg-white dark:bg-slate-800 flex justify-center">
+                <div class="w-28 h-1 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL 1: KALKULATOR PELUANG INTERAKTIF -->
+    <div id="calc-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl p-4 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-3 relative animate-in fade-in zoom-in duration-200">
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-2">
+                <h3 class="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-sky-500"></i> Kalkulator Peluang Interaktif
+                </h3>
+                <button onclick="closeCalcModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-2">
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500">Pilih Jenis Peluang:</label>
+                    <select id="calc-type" onchange="updateCalcFields()" class="w-full text-xs p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200">
+                        <option value="dasar">Peluang Dasar P(A) = n(A) / n(S)</option>
+                        <option value="lepas">Saling Lepas: P(A ∪ B) = P(A) + P(B)</option>
+                        <option value="bebas">Saling Bebas: P(A ∩ B) = P(A) × P(B)</option>
+                        <option value="bersyarat">Bersyarat: P(A|B) = P(A ∩ B) / P(B)</option>
+                    </select>
+                </div>
+
+                <div id="calc-inputs" class="space-y-2">
+                    <!-- Dynamic Inputs injected by JS -->
+                </div>
+
+                <button onclick="calculateProbability()" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold shadow-md transition">
+                    Hitung Peluang
+                </button>
+
+                <div id="calc-result" class="p-2.5 bg-sky-50 dark:bg-slate-900 rounded-xl text-center border border-sky-100 dark:border-sky-900/50 hidden">
+                    <span class="text-[10px] text-slate-500">Hasil Perhitungan:</span>
+                    <div id="calc-result-val" class="text-sm font-bold text-sky-600 dark:text-sky-400">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: EMBED / EXTERNAL LINK VIEWER -->
+    <div id="link-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md h-[85vh] rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
+            <div class="p-3 bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <span id="modal-title" class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate pr-2">Link Eksternal</span>
+                <div class="flex items-center gap-2">
+                    <a id="modal-direct-btn" href="#" target="_blank" class="text-[10px] px-2.5 py-1 bg-sky-500 text-white rounded-lg font-semibold hover:bg-sky-600 transition flex items-center gap-1">
+                        <i class="fa-solid fa-external-link"></i> Buka Tab Baru
+                    </a>
+                    <button onclick="closeLinkModal()" class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-200 flex items-center justify-center text-xs">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-1 bg-slate-50 dark:bg-slate-900 relative">
+                <iframe id="modal-iframe" class="w-full h-full border-0" src="" allow="autoplay; fullscreen"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // Digital Clock Simulation
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('digital-clock').textContent = `${hours}:${minutes}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = 'fa-solid fa-moon text-xs';
+            } else {
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-sun text-xs text-amber-400';
+            }
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            // Hide all views
+            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+            
+            // Show selected view
+            const selectedView = document.getElementById(`view-${tabName}`);
+            if (selectedView) selectedView.classList.remove('hidden');
+
+            // Reset navigation icons style
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = 'nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200';
+            });
+
+            // Highlight active nav
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            if (activeNav) {
+                activeNav.className = 'nav-btn flex flex-col items-center gap-0.5 text-sky-600 dark:text-sky-400';
+            }
+
+            // Scroll container to top
+            document.getElementById('content-container').scrollTop = 0;
+        }
+
+        // Modul Meeting Sub-tab Switcher
+        function switchModul(meetingNum) {
+            document.querySelectorAll('.modul-tab').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(`modul-content-${meetingNum}`).classList.remove('hidden');
+
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`modul-btn-${i}`);
+                if (i === meetingNum) {
+                    btn.className = 'flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow transition';
+                } else {
+                    btn.className = 'flex-1 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 transition';
+                }
+            }
+        }
+
+        // External Link Viewer Handler
+        function openExternalLink(url, title) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-iframe').src = url;
+            document.getElementById('modal-direct-btn').href = url;
+            document.getElementById('link-modal').classList.remove('hidden');
+        }
+
+        function closeLinkModal() {
+            document.getElementById('link-modal').classList.add('hidden');
+            document.getElementById('modal-iframe').src = '';
+        }
+
+        // Live Content Filter/Search
+        function searchContent() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.searchable-card');
+            
+            if (query.trim() !== '') {
+                switchTab('materi'); // Auto switch to materi view on search
+            }
+
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Calculator Modal Logic
+        function openCalcModal() {
+            document.getElementById('calc-modal').classList.remove('hidden');
+            updateCalcFields();
+        }
+
+        function closeCalcModal() {
+            document.getElementById('calc-modal').classList.add('hidden');
+        }
+
+        function updateCalcFields() {
+            const type = document.getElementById('calc-type').value;
+            const container = document.getElementById('calc-inputs');
+            document.getElementById('calc-result').classList.add('hidden');
+
+            if (type === 'dasar') {
+                container.innerHTML = `
+                    <div>
+                        <label class="text-[10px] text-slate-500">n(A) - Jumlah Anggota Kejadian A:</label>
+                        <input type="number" id="input-na" value="3" class="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500">n(S) - Jumlah Ruang Sampel Total:</label>
+                        <input type="number" id="input-ns" value="6" class="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                    </div>
+                `;
+            } else if (type === 'lepas') {
+                container.innerHTML = `
+                    <div>
+                        <label class="text-[10px] text-slate-500">P(A) - Peluang Kejadian A (0 - 1 atau desimal):</label>
+                        <input type="number" step="0.01" id="input-pa" value="0.4" class="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500">P(B) - Peluang Kejadian B (0 - 1 atau desimal):</label>
+                        <input type="number" step="0.01" id="input-pb" value="0.3" class="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                    </div>
+                `;
+            } else if (type === 'bebas') {
+                container.innerHTML = `
+                    <div>
+                        <label class="text-[10px] text-slate-500">P(A) - Peluang Kejadian A:</label>
+                        <input type="number" step="0.01" id="input-pa" value="0.5" class="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500">P(B) - Peluang Kejadian B:</label>
+                        <input type="number" step="0.01" id="input-pb" value="0.1667" class="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                    </div>
+                `;
+            } else if (type === 'bersyarat') {
+                container.innerHTML = `
+                    <div>
+                        <label class="text-[10px] text-slate-500">P(A ∩ B) - Peluang Irisan A dan B:</label>
+                        <input type="number" step="0.01" id="input-pinter" value="0.2" class="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500">P(B) - Peluang Syarat Kejadian B:</label>
+                        <input type="number" step="0.01" id="input-pb" value="0.5" class="w-full text-xs p-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                    </div>
+                `;
+            }
+        }
+
+        function calculateProbability() {
+            const type = document.getElementById('calc-type').value;
+            let result = 0;
+            let textRes = '';
+
+            if (type === 'dasar') {
+                const na = parseFloat(document.getElementById('input-na').value) || 0;
+                const ns = parseFloat(document.getElementById('input-ns').value) || 1;
+                result = na / ns;
+                textRes = `P(A) = ${result.toFixed(4)} (${(result * 100).toFixed(1)}%)`;
+            } else if (type === 'lepas') {
+                const pa = parseFloat(document.getElementById('input-pa').value) || 0;
+                const pb = parseFloat(document.getElementById('input-pb').value) || 0;
+                result = pa + pb;
+                textRes = `P(A ∪ B) = ${result.toFixed(4)} (${(result * 100).toFixed(1)}%)`;
+            } else if (type === 'bebas') {
+                const pa = parseFloat(document.getElementById('input-pa').value) || 0;
+                const pb = parseFloat(document.getElementById('input-pb').value) || 0;
+                result = pa * pb;
+                textRes = `P(A ∩ B) = ${result.toFixed(4)} (${(result * 100).toFixed(1)}%)`;
+            } else if (type === 'bersyarat') {
+                const pinter = parseFloat(document.getElementById('input-pinter').value) || 0;
+                const pb = parseFloat(document.getElementById('input-pb').value) || 1;
+                result = pinter / pb;
+                textRes = `P(A|B) = ${result.toFixed(4)} (${(result * 100).toFixed(1)}%)`;
+            }
+
+            const resDiv = document.getElementById('calc-result');
+            const resVal = document.getElementById('calc-result-val');
+            resVal.textContent = textRes;
+            resDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
